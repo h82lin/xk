@@ -70,6 +70,7 @@ int file_dup(int fd) {
 		return -1;
 	}
 
+	myproc()->fd_array[fd]->ref += 1;
 	myproc()->fd_array[free_fd] = myproc()->fd_array[fd];
 
 	return free_fd;
@@ -110,7 +111,7 @@ int file_write(int fd, char* buffer, int bytes_write) {
 
 	struct file_info* fi = myproc()->fd_array[fd];
 
-	int bytes_written = concurrent_writei(fi->iptr, buffer, fi->offset, bytes_written);
+	int bytes_written = concurrent_writei(fi->iptr, buffer, fi->offset, bytes_write);
 
 	if (bytes_written != -1) {
 		
@@ -118,6 +119,12 @@ int file_write(int fd, char* buffer, int bytes_write) {
 	}
 
 	return bytes_written;
+}
+
+void file_stat(int fd, char* fstat) {
+
+	struct file_info* fi = myproc()->fd_array[fd];
+	concurrent_stati(fi->iptr, fstat);
 }
 
 int str_cmp(char* str1, char* str2) {

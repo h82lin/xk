@@ -51,15 +51,6 @@ int sys_write(void) {
   // you have to change the code in this function.
   // Currently it supports printing one character to the screen.
 
-  int n;
-  char *p;
-
-  if (argint(2, &n) < 0 || argptr(1, &p, n) < 0)
-    return -1;
-  
-
-
-
   int fd, bytes_write;
   char* buffer;
 
@@ -73,7 +64,7 @@ int sys_write(void) {
   if (fi->permission == O_RDONLY) {
     return -1;
   }
-  uartputc((int)(*buffer));
+  
 
   return file_write(fd, buffer, bytes_write);
 }
@@ -89,8 +80,17 @@ int sys_close(void) {
 }
 
 int sys_fstat(void) {
-  // LAB1
-  return -1;
+
+  int fd;
+  struct stat* fstat;
+
+  if (argfd(0, &fd) == -1 || argptr(1, (char**) &fstat, sizeof(fstat)) == -1) {
+    return -1;
+  }
+
+  file_stat(fd, fstat);
+
+  return 0;
 }
 
 int sys_open(void) {
