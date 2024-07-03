@@ -27,6 +27,7 @@ int file_open(char* path, int mode) {
 			file_table_idx = i;
 			file_table[i].ref = 1;
 			file_table[i].iptr = path_iptr;
+			file_table[i].permission = mode;
 			break;
 		}
 	}
@@ -73,6 +74,50 @@ int file_dup(int fd) {
 
 	return free_fd;
 
+}
+
+void file_close(int fd) {
+
+	struct file_info* fi = myproc()->fd_array[fd];
+	fi->ref -= 1;
+
+	if (fi->ref == 0) {
+		irelease(fi->iptr);
+		fi->iptr = NULL;
+		fi->offset = 0;
+		fi->permission = 0;
+	}
+	myproc()->fd_array[fd] = NULL;
+
+}
+
+int file_read(int fd, char* buffer, int bytes_requested) {
+
+	struct file_info* fi = myproc()->fd_array[fd];
+
+	int bytes_read = concurrent_readi(fi->iptr, buffer, fi->offset, bytes_requested);
+
+	if (bytes_read != -1) {
+		
+		fi->offset += bytes_read;
+	}
+
+	return bytes_read;
+
+}
+
+int file_write(int fd, char* buffer, int bytes_write) {
+
+	struct file_info* fi = myproc()->fd_array[fd];
+
+	int bytes_written = concurrent_writei(fi->iptr, buffer, fi->offset, bytes_written);
+
+	if (bytes_written != -1) {
+		
+		fi->offset += bytes_written;
+	}
+
+	return bytes_written;
 }
 
 int str_cmp(char* str1, char* str2) {

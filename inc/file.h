@@ -46,6 +46,8 @@ enum {
 
 struct file_info {
   int ref;
+  int offset;
+  int permission;
   struct inode* iptr;
 };
 
