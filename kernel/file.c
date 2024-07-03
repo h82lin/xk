@@ -72,6 +72,7 @@ int file_dup(int fd) {
 
 	myproc()->fd_array[fd]->ref += 1;
 	myproc()->fd_array[free_fd] = myproc()->fd_array[fd];
+	idup(myproc()->fd_array[fd]->iptr);
 
 	return free_fd;
 
